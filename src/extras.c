@@ -1,6 +1,6 @@
 /*******************************************************************************
  * @file
- * @purpose        
+ * @purpose
  * @version        0.1
  *------------------------------------------------------------------------------
  * Copyright (C) 2011 Gumstix Inc.
@@ -11,14 +11,14 @@
  *------------------------------------------------------------------------------
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  *     list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice,
  *  this list of conditions and the following disclaimer in the documentation
  *  and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED
@@ -184,7 +184,7 @@ int _heartbeatOff(uint8_t * args)
 int _initMatch(uint8_t * args)
 {
     uint8_t * arg_ptr;
-    uint8_t MatchChannel; 
+    uint8_t MatchChannel;
     uint32_t MatchValue;
     PWM_MATCHCFG_Type PWMMatchCfgDat;
 
@@ -237,7 +237,7 @@ int _deref(uint8_t * args)
     uint8_t * arg_ptr;
     void * ptr;
     uint8_t size;
-    uint8_t * ptr8; 
+    uint8_t * ptr8;
     uint16_t * ptr16;
     uint32_t * ptr32;
 
@@ -245,7 +245,7 @@ int _deref(uint8_t * args)
     ptr = (void *) strtoul((char *) arg_ptr, NULL, 16);
     ptr8 = ptr;
     ptr16 = ptr;
-    ptr32 = ptr;    
+    ptr32 = ptr;
 
     if ((arg_ptr = (uint8_t *) strtok(NULL, " ")) == NULL) return 1;
     size = (uint8_t) strtoul((char *) arg_ptr, NULL, 16);
@@ -376,9 +376,9 @@ int _roboveroConfig(uint8_t * args)
      */
     ADC_Init(LPC_ADC, 200000);
     for (i = 0; i < 4; i++)
-        ADC_ChannelCmd(LPC_ADC, i, ENABLE); 
+        ADC_ChannelCmd(LPC_ADC, i, ENABLE);
     for (i = 5; i < 8; i++)
-        ADC_ChannelCmd(LPC_ADC, i, ENABLE); 
+        ADC_ChannelCmd(LPC_ADC, i, ENABLE);
 
     /*
      * Configure I2C0 for IMU communications
@@ -392,7 +392,7 @@ int _roboveroConfig(uint8_t * args)
     CAN_Init(LPC_CAN1, 100000);
 
     /*
-     * Initialize UART1 
+     * Initialize UART1
      */
     UART_ConfigStructInit(&UARTConfigStruct);
     UARTConfigStruct.Baud_rate = 115200;
@@ -403,7 +403,7 @@ int _roboveroConfig(uint8_t * args)
      * Initialize PWM
      *
      * Peripheral clock is 30MHz. Prescale by 30 cycles for 1us resolution.
-     */    
+     */
     PWMCfgDat.PrescaleOption = PWM_TIMER_PRESCALE_TICKVAL;
     PWMCfgDat.PrescaleValue = 30;
     PWM_Init(LPC_PWM1, PWM_MODE_TIMER, &PWMCfgDat);
@@ -472,4 +472,80 @@ int _resetConfig(uint8_t * args)
     return 0;
 }
 
+int _PWM_SetSpeed(uint8_t * args)
+{
+  /*
+   *  This function sets the PWM channel to output specified PWM wave.
+   *
+   *  Note:
+   *  - All channels must use same base period since they share
+   *  PWM0's counter as base period.
+   *  - You can set all six pwm channels to output different duty cycles.
+   *
+   *  Example: to output wave of 2000us period and set 1500us of the
+   *  period to logic one to hold a neutral position for angle servo
+   *  for channel 2.
+   *  $ Run in robovero console: PWM_SetSpeed 2 1500 2000
+   *
+   *  Args:
+   *  - PWMChannel: 1-6, the PWM channel number.
+   *  - PWMPeriod:  the time for the chnnel to output
+   *      logic one in each cycle, in us.
+   *  - PWMBasePeriod: the period of each cycle, in us.
+   *
+   *  Return: void
+   */
+  uint8_t * arg_ptr;
+  uint8_t PWMChannel;
+  uint32_t PWMPeriod;
+  uint32_t PWMBasePeriod;
+  //PWM_TIMERCFG_Type PWMCfgDat;
+  PWM_MATCHCFG_Type PWMMatchCfgDat;
 
+  /* Get PWM Channel Number */
+  if ((arg_ptr = (uint8_t *) strtok(NULL, " ")) == NULL) return 1;
+  PWMChannel = (uint8_t) strtoul((char *) arg_ptr, NULL, 16);
+  /* Get PWM Periods */
+  if ((arg_ptr = (uint8_t *) strtok(NULL, " ")) == NULL) return 1;
+  PWMPeriod = (uint32_t) strtoul((char *) arg_ptr, NULL, 16);
+  if ((arg_ptr = (uint8_t *) strtok(NULL, " ")) == NULL) return 1;
+  PWMBasePeriod = (uint32_t) strtoul((char *) arg_ptr, NULL, 16);
+
+
+  if (!(PWMChannel > 0 && PWMChannel < 6))
+    return 1;
+  if (!(PWMPeriod >= 0 && PWMPeriod <= PWMBasePeriod))
+    return 1;
+
+  /* Disable PWM and couter */
+  PWM_Cmd(LPC_PWM1, DISABLE);
+  PWM_CounterCmd(LPC_PWM1, DISABLE);
+
+  /* Setup base period */
+  PWM_MatchUpdate(LPC_PWM1, 0, PWMBasePeriod, PWM_MATCH_UPDATE_NOW);
+  PWMMatchCfgDat.IntOnMatch = DISABLE;
+  PWMMatchCfgDat.MatchChannel = 0;
+  PWMMatchCfgDat.ResetOnMatch = ENABLE;
+  PWMMatchCfgDat.StopOnMatch = DISABLE;
+  PWM_ConfigMatch(LPC_PWM1, &PWMMatchCfgDat);
+
+  /* Set Match Value for channel */
+  PWM_MatchUpdate(LPC_PWM1, PWMChannel, PWMPeriod, PWM_MATCH_UPDATE_NOW);
+  /* Config Match Options */
+  PWMMatchCfgDat.IntOnMatch = DISABLE;
+  PWMMatchCfgDat.MatchChannel = PWMChannel;
+  PWMMatchCfgDat.ResetOnMatch = DISABLE;
+  PWMMatchCfgDat.StopOnMatch = DISABLE;
+  PWM_ConfigMatch(LPC_PWM1, &PWMMatchCfgDat);
+
+  /* Enable PWM Channel Output */
+  PWM_ChannelCmd(LPC_PWM1, PWMChannel, ENABLE);
+  /* Reset PWM counter */
+  PWM_ResetCounter(LPC_PWM1);
+  /* Enable PWM counter peripheral now */
+  PWM_CounterCmd(LPC_PWM1, ENABLE);
+  /* Enable PWM peripheral now */
+  PWM_Cmd(LPC_PWM1, ENABLE);
+
+  return 0;
+}

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * @file
- * @purpose        
+ * @purpose
  * @version        0.1
  *------------------------------------------------------------------------------
  * Copyright (C) 2011 Gumstix Inc.
@@ -12,14 +12,14 @@
  *------------------------------------------------------------------------------
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  *     list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice,
  *  this list of conditions and the following disclaimer in the documentation
  *  and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED
@@ -56,6 +56,7 @@ const _nxp_function driver_table[] = {
     {(uint8_t *) "roboveroConfig", _roboveroConfig},
     {(uint8_t *) "resetConfig", _resetConfig},
     {(uint8_t *) "PWM_DeInit", _PWM_DeInit},
+    {(uint8_t *) "PWM_SetSpeed", _PWM_SetSpeed},
 //    {(uint8_t *) "PWM_PinConfig", _PWM_PinConfig},
     {(uint8_t *) "PWM_GetCaptureValue", _PWM_GetCaptureValue},
     {(uint8_t *) "PWM_ConfigStructInit", _PWM_ConfigStructInit},

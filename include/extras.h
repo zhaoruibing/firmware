@@ -1,6 +1,6 @@
 /*******************************************************************************
  * @file
- * @purpose        
+ * @purpose
  * @version        0.1
  *------------------------------------------------------------------------------
  * Copyright (C) 2011 Gumstix Inc.
@@ -11,14 +11,14 @@
  *------------------------------------------------------------------------------
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  *     list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice,
  *  this list of conditions and the following disclaimer in the documentation
  *  and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED
@@ -53,6 +53,7 @@ int _free(uint8_t * args);
 int _deref(uint8_t * args);
 int _roboveroConfig(uint8_t * args);
 int _resetConfig(uint8_t * args);
+int _PWM_SetSpeed(uint8_t * args);
 
 #endif
 
